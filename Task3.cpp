@@ -6,8 +6,7 @@ char space[3][3] = {{'1','2','3'}, {'4','5','6'}, {'7','8','9'}};
 int row, column;
 char token = 'x';
 bool tie = false;
-string n1 = " ";
-string n2 = " ";
+string n1, n2;
 
 void functionOne() {
     // Structure of the Tic-Tac-Toe game
@@ -24,68 +23,51 @@ void functionOne() {
 
 void functionTwo() {
     int digit;
-    if(token == 'x') {
-        cout << n1 << ", please enter: ";
+    while (true) {  // Use a loop instead of recursion to avoid stack overflow
+        if (token == 'x') {
+            cout << n1 << ", please enter: ";
+        } else {
+            cout << n2 << ", please enter: ";
+        }
         cin >> digit;
-    } else if(token == '0') {
-        cout << n2 << ", please enter: ";
-        cin >> digit;
-    }
 
-    if(digit == 1) {
-        row = 0; column = 0;
-    } else if(digit == 2) {
-        row = 0; column = 1;
-    } else if(digit == 3) {
-        row = 0; column = 2;
-    } else if(digit == 4) {
-        row = 1; column = 0;
-    } else if(digit == 5) {
-        row = 1; column = 1;
-    } else if(digit == 6) {
-        row = 1; column = 2;
-    } else if(digit == 7) {
-        row = 2; column = 0;
-    } else if(digit == 8) {
-        row = 2; column = 1;
-    } else if(digit == 9) {
-        row = 2; column = 2;
-    } else {
-        cout << "Invalid input!" << endl;
-        functionTwo(); // Ask for input again if invalid
-        return;
-    }
+        if (digit < 1 || digit > 9) {
+            cout << "Invalid input! Please enter a number between 1 and 9." << endl;
+            continue;
+        }
 
-    if(token == 'x' && space[row][column] != 'x' && space[row][column] != '0') {
-        space[row][column] = 'x';
-        token = '0';
-    } else if(token == '0' && space[row][column] != 'x' && space[row][column] != '0') {
-        space[row][column] = '0';
-        token = 'x';
-    } else {
-        cout << "The spot is already taken!" << endl;
-        functionTwo(); // Ask for input again if spot is taken
+        row = (digit - 1) / 3;
+        column = (digit - 1) % 3;
+
+        if (space[row][column] != 'x' && space[row][column] != '0') {
+            space[row][column] = token;
+            token = (token == 'x') ? '0' : 'x'; // Switch token
+            break;
+        } else {
+            cout << "The spot is already taken! Choose another." << endl;
+        }
     }
 }
 
 bool functionThree() {
-    // Check rows, columns, and diagonals for a win
-    for(int i = 0; i < 3; i++) {
-        if(space[i][0] == space[i][1] && space[i][0] == space[i][2])
+    // Check rows and columns
+    for (int i = 0; i < 3; i++) {
+        if (space[i][0] == space[i][1] && space[i][0] == space[i][2])
             return true;
-        if(space[0][i] == space[1][i] && space[0][i] == space[2][i])
+        if (space[0][i] == space[1][i] && space[0][i] == space[2][i])
             return true;
     }
 
-    if(space[0][0] == space[1][1] && space[0][0] == space[2][2])
+    // Check diagonals
+    if (space[0][0] == space[1][1] && space[0][0] == space[2][2])
         return true;
-    if(space[0][2] == space[1][1] && space[0][2] == space[2][0])
+    if (space[0][2] == space[1][1] && space[0][2] == space[2][0])
         return true;
 
     // Check for tie
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            if(space[i][j] != 'x' && space[i][j] != '0') {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (space[i][j] != 'x' && space[i][j] != '0') {
                 return false;
             }
         }
@@ -96,7 +78,6 @@ bool functionThree() {
 }
 
 int main() {
-    // Number of players
     cout << "Enter the name of player 1: ";
     getline(cin, n1);
     cout << "Enter the name of player 2: ";
@@ -105,20 +86,22 @@ int main() {
     cout << n1 << " (x) will play first.\n";
     cout << n2 << " (0) will play second.\n";
 
-    while(!functionThree()) {
+    while (!functionThree()) {
         functionOne();
         functionTwo();
-        functionThree();
     }
 
     functionOne();  // Show the final state of the game
 
-    if(tie) {
+    if (tie) {
         cout << "It's a draw!" << endl;
-    } else if(token == '0' && tie == false) {  // Check if player 1 wins
-        cout << n1 << " wins!" << endl;
-    } else if(token == 'x' && tie == false) {  // Check if player 2 wins
-        cout << n2 << " wins!" << endl;
+    } else {
+        // Determine winner based on last token change
+        if (token == '0') {
+            cout << n1 << " wins!" << endl;
+        } else {
+            cout << n2 << " wins!" << endl;
+        }
     }
 
     return 0;
